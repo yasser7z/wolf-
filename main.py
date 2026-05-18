@@ -94,7 +94,7 @@ class DatabaseManager:
 
     async def update_player_status(self, guild_id: int, player_id: int, **kwargs):
 
-> Yasser:
+
 if not self.conn:
             return
         valid_fields = {'is_alive', 'has_used_power', 'assigned_role', 'display_name'}
@@ -188,7 +188,7 @@ class NightTargets:
     deaths: dict[int, str] = field(default_factory=dict)
     seducer_died_with_wolf: bool = False
 
-> Yasser:
+
 @dataclass
 class VoteSession:
     eligible_voters: set[int] = field(default_factory=set)
@@ -287,7 +287,7 @@ async def fire_already_used_power(interaction: discord.Interaction, role: str):
 async def fire_not_your_turn(interaction: discord.Interaction):
     await interaction.response.send_message("ههههه... انتظر دورك الفعلي يا عجول!", ephemeral=True)
 
-> Yasser:
+
 async def fire_not_in_game(interaction: discord.Interaction):
     await interaction.response.send_message("أنت مو داخل القيم أصلاً يا شبح 👻", ephemeral=True)
 
@@ -388,7 +388,7 @@ class BasePagedTargetView(discord.ui.View):
             return False
         return True
 
-> Yasser:
+
 async def _refresh(self, interaction: discord.Interaction, note: Optional[str] = None) -> None:
         self.select.options = self._current_options()
         self.select.placeholder = self._select_placeholder()
@@ -469,7 +469,7 @@ class KingForceVoteView(BasePagedTargetView):
         await interaction.response.edit_message(content=f"{self._render_content()}\n\n⚖️ تم استدعاء مرسوم الملك الصارم وصعق الهدف.", view=self)
         self.stop()
 
-> Yasser:
+
 # ==============================================================================
 # 5. محرك إدارة الأطوار الرئيسي والعمليات الحسابية والمنطقية (Werewolf Phase Cog)
 # ==============================================================================
@@ -543,7 +543,7 @@ class WerewolfPhaseCog(commands.Cog):
             except discord.Forbidden:
                 await town_channel.send(f"⚠️ {member.display_name} (الذيب) الخاص عندك مغلق! افتحه لتشارك بالصيد!")
 
-> Yasser:
+
 det_tasks = []
         for uid in detective_ids:
             if game.players[uid].get('has_used_power', False): continue
@@ -614,7 +614,7 @@ det_tasks = []
             top_targets = [uid for uid, count in counts.items() if count == top_score]
             targets.wolves_target = random.choice(top_targets)
 
-> Yasser:
+
 targets.detective_target = next((v.result for v in det_tasks if v.result is not None), None)
         targets.guard_target = next((v.result for v in guard_tasks if v.result is not None), None)
         targets.doctor_target = next((v.result for v in doc_tasks if v.result is not None), None)
@@ -684,7 +684,7 @@ targets.detective_target = next((v.result for v in det_tasks if v.result is not 
                     exposed_wolf = random.choice(active_wolves)
                     w_record = game.players[exposed_wolf]
 
-> Yasser:
+
 embed_fadi = discord.Embed(
                         title="👵 صرخة أم فادي الفاضحة من القبر!",
                         description=f"قبل أن تلفظ أنفاسها الأخيرة، التفتت للجميع وأشارت بإصبعها:\n\nالذيب هو {w_record['display_name']} يا قرويين خذوا ثأري!",
@@ -770,7 +770,7 @@ embed_fadi = discord.Embed(
                 await db.update_player_status(game.guild_id, lynch_target, is_alive=False)
             return lynch_target
 
-> Yasser:
+
 # فرز وحساب الأصوات العادية مع احتساب الوزن المضاعف للعمدة
         if not session.ballots:
             embed_no_votes = discord.Embed(title="🏛️ صمت النهار المحير", description="لم يقم أحد بالتصويت أو الاستجابة، انقضى النهار بسلام غامض.", color=0x7f8c8d)
@@ -866,7 +866,7 @@ async def manage_game_loop(guild_id: int, interaction: discord.Interaction):
         await town_channel.send(f"🏛️ بدأ نهار اليوم الـ {game.day_number}! تم فتح صناديق الاقتراع السرية بالخاص، لديكم دقيقة واحدة للنقاش والتصويت!")
         await cog.run_day_voting(game, interaction.guild, town_channel, timeout_seconds=40)
 
-> Yasser:
+
 # فحص شروط انتهاء اللعبة فوراً بعد فرز أصوات المشنقة بالنهار
         over, winner = cog.is_game_over(game)
         if over:
@@ -952,7 +952,7 @@ async def start_game(interaction: discord.Interaction):
     player_ids = list(game.players.keys())
     random.shuffle(player_ids)
 
-> Yasser:
+
 # قائمة الأدوار الخاصة المدعومة
     available_roles = list(ROLES_INFO.keys())
     if "القروي" in available_roles:
@@ -1038,7 +1038,7 @@ async def game_status(interaction: discord.Interaction):
             await interaction.response.send_message("ما فيه أي قيم شغال حالياً في هذا السيرفر. اكتب أمر /تسجيل واصنع متعتك!", ephemeral=True)
             return
 
-> Yasser:
+
 game = games[guild_id]
     alive_names = [game.players[uid]['display_name'] for uid in game.alive_players if uid in game.players and game.players[uid]['alive']]
     dead_count = len(game.players) - len(alive_names)
