@@ -1040,12 +1040,15 @@ async def game_status(interaction: discord.Interaction):
 # 7. تشغيل البوت وإرفاق ملف التوكين بأمان (Fixing Event Loop)
 # ==============================================================================
 async def main():
+
+    # يقرأ من النظام (Render) مباشرة، وإذا لم يجده يجرّب قراءة ملف محلي
     load_dotenv()
     token = os.getenv("DISCORD_TOKEN")
+    
     if not token:
-        print("❌ خطأ: لم يتم العثور على رمز التوكين السري DISCORD_TOKEN داخل ملف .env")
-        return
 
+         print("❌ خطأ: لم يتم العثور على DISCORD_TOKEN لا في النظام ولا في ملف .env")
+        # بدلاً من الإغلاق الفوري، نترك المحاولة تعمل لعل وعسى
     # تشغيل البوت باستخدام context manager لضمان الإغلاق السليم
     async with bot:
         try:
