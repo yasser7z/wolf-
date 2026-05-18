@@ -1,4 +1,3 @@
-
 import os
 import random
 import asyncio
@@ -12,11 +11,11 @@ from discord.ext import commands
 from dotenv import load_dotenv
 
 # ==============================================================================
-# 1. 
+# 1. إعدادات قاعدة البيانات ونظام الحفظ الديناميكي (DeepSeek Engine)
 # ==============================================================================
 
 class DatabaseManager:
-    def init(self, db_path: str = "werewolf.db"):
+    def __init__(self, db_path: str = "werewolf.db"):
         self.db_path = db_path
         self.conn: Optional[aiosqlite.Connection] = None
 
@@ -93,9 +92,7 @@ class DatabaseManager:
         return game_phase, day_number, players
 
     async def update_player_status(self, guild_id: int, player_id: int, **kwargs):
-
-
-if not self.conn:
+        if not self.conn:
             return
         valid_fields = {'is_alive', 'has_used_power', 'assigned_role', 'display_name'}
         updates = []
@@ -123,7 +120,7 @@ if not self.conn:
 db = DatabaseManager()
 
 # ==============================================================================
-# 2. الهياكل البيانية والبيانات العامة 
+# 2. الهياكل البيانية والبيانات العامة (Unified Game Core)
 # ==============================================================================
 
 ROLES_INFO = {
@@ -158,7 +155,7 @@ def normalize_role(role_text: str) -> str:
     return text
 
 class GameInstance:
-    def init(self, guild_id: int):
+    def __init__(self, guild_id: int):
         self.guild_id = guild_id
         self.game_phase = "signup"  # signup, night, day, ended
         self.day_number = 0
@@ -188,7 +185,6 @@ class NightTargets:
     deaths: dict[int, str] = field(default_factory=dict)
     seducer_died_with_wolf: bool = False
 
-
 @dataclass
 class VoteSession:
     eligible_voters: set[int] = field(default_factory=set)
@@ -217,13 +213,13 @@ class VoteSession:
 games: Dict[int, GameInstance] = {}
 
 # ==============================================================================
-# 3. واجهات التصميم الاحترافي والرسائل والردود  
+# 3. واجهات التصميم الاحترافي والرسائل والردود الساخرة (Grok & ChatGPT Style)
 # ==============================================================================
 
 def embed_night_announcement() -> discord.Embed:
     embed = discord.Embed(
-        title="🌙 الليل يخيّم على القرية",
-        description="أغمضوا أعينكم... الذياب خرجوا للصيد 🐺\n\nكل الأدوار الخاصة، نفذوا أفعالكم في الخاص الآن عبر الرسائل المستلمة.",
+        title="🌙 **الليل يخيّم على القرية**",
+        description="**أغمضوا أعينكم... الذياب خرجوا للصيد** 🐺\n\nكل الأدوار الخاصة، نفذوا أفعالكم في الخاص الآن عبر الرسائل المستلمة.",
         color=0x2c3e50
     )
     embed.set_thumbnail(url="https://i.imgur.com/8z3kL9p.png")
@@ -232,8 +228,8 @@ def embed_night_announcement() -> discord.Embed:
 
 def embed_morning_no_death() -> discord.Embed:
     embed = discord.Embed(
-        title="☀️ بزوغ الفجر",
-        description="🌅 أشرقت الشمس... وما زال الجميع على قيد الحياة!",
+        title="☀️ **بزوغ الفجر**",
+        description="**🌅 أشرقت الشمس... وما زال الجميع على قيد الحياة!**",
         color=0xf1c40f
     )
     embed.add_field(name="الوضع الحالي", value="القرية هادئة... لكن التوتر في تصاعد 👀", inline=False)
@@ -242,51 +238,50 @@ def embed_morning_no_death() -> discord.Embed:
 
 def embed_morning_death(player_name: str, role: str) -> discord.Embed:
     death_messages = [
-        f"🩸 {player_name} وُجد مقتولاً في منزله...",
-        f"💀 صرخات {player_name} دوّت في أرجاء القرية...",
-        f"🐺 الذياب أكلوا {player_name} على العشاء!"
+        f"**🩸 {player_name} وُجد مقتولاً في منزله...**",
+        f"**💀 صرخات {player_name} دوّت في أرجاء القرية...**",
+        f"**🐺 الذياب أكلوا {player_name} على العشاء!**"
     ]
     embed = discord.Embed(
-        title="☀️ اكتشاف الجثة",
+        title="☀️ **اكتشاف الجثة**",
         description=random.choice(death_messages),
         color=0xc0392b
     )
     embed.add_field(name="الضحية", value=player_name, inline=True)
-    embed.add_field(name="الدور الحقيقي", value=f"{role}", inline=True)
+    embed.add_field(name="الدور الحقيقي", value=f"`{role}`", inline=True)
     embed.add_field(name="الوضع", value="القرية في حالة ذعر...", inline=False)
     return embed
 
 def embed_wolves_victory() -> discord.Embed:
     embed = discord.Embed(
-        title="🐺 انتصار الذياب",
-        description="الذياب سيطروا على القرية...\nلم يبقَ إلا العظام والدماء.",
+        title="🐺 **انتصار الذياب**",
+        description="**الذياب سيطروا على القرية...**\nلم يبقَ إلا العظام والدماء.",
         color=0x8B0000
     )
-    embed.add_field(name="النتيجة", value="الذياب فازوا بالكامل 🏆", inline=False)
+    embed.add_field(name="النتيجة", value="**الذياب فازوا بالكامل** 🏆", inline=False)
     return embed
 
 def embed_villagers_victory() -> discord.Embed:
     embed = discord.Embed(
-        title="🧑‍🌾 انتصار القرويين",
-        description="تم القضاء على آخر ذيب...\nالقرية آمنة ومستقرة مرة أخرى!",
+        title="🧑‍🌾 **انتصار القرويين**",
+        description="**تم القضاء على آخر ذيب...**\nالقرية آمنة ومستقرة مرة أخرى!",
         color=0x27ae60
     )
-    embed.add_field(name="النتيجة", value="القرويين فازوا بالبطولة 🏆", inline=False)
+    embed.add_field(name="النتيجة", value="**القرويين فازوا بالبطولة** 🏆", inline=False)
     embed.set_footer(text="أم زكي سعيدة جداً اليوم 👵")
     return embed
 
 async def fire_already_used_power(interaction: discord.Interaction, role: str):
     roasts = [
-        f"يا {interaction.user.mention}، قدرة {role} تُستخدم مرة واحدة بس! تبي تكسر القوانين؟ 😂",
+        f"يا {interaction.user.mention}، قدرة **{role}** تُستخدم مرة واحدة بس! تبي تكسر القوانين؟ 😂",
         f"استخدمت قوتك وخلاص.. الحين تبي كرت ثاني؟ تعلّ م ونم يا بطل",
-        f"{role} خلصت يا ذكي، روح العب كقروي عادي واستمتع بالصمت",
+        f"**{role}** خلصت يا ذكي، روح العب كقروي عادي واستمتع بالصمت",
         "يا أخي حتى في لعبة الذيب تبي تطمع وتغش؟ 😭"
     ]
     await interaction.response.send_message(random.choice(roasts), ephemeral=True)
 
 async def fire_not_your_turn(interaction: discord.Interaction):
-    await interaction.response.send_message("ههههه... انتظر دورك الفعلي يا عجول!", ephemeral=True)
-
+    await interaction.response.send_message("**ههههه...** انتظر دورك الفعلي يا عجول!", ephemeral=True)
 
 async def fire_not_in_game(interaction: discord.Interaction):
     await interaction.response.send_message("أنت مو داخل القيم أصلاً يا شبح 👻", ephemeral=True)
@@ -296,7 +291,7 @@ async def fire_not_in_game(interaction: discord.Interaction):
 # ==============================================================================
 
 class BasePagedTargetView(discord.ui.View):
-    def init(
+    def __init__(
         self,
         *,
         author_id: int,
@@ -309,7 +304,7 @@ class BasePagedTargetView(discord.ui.View):
         confirm_label: str = "تأكيد القرار",
         cancel_label: str = "إلغاء",
     ) -> None:
-        super().init(timeout=timeout)
+        super().__init__(timeout=timeout)
         self.author_id = author_id
         self.candidates = candidates[:]
         self.title = title
@@ -388,8 +383,7 @@ class BasePagedTargetView(discord.ui.View):
             return False
         return True
 
-
-async def _refresh(self, interaction: discord.Interaction, note: Optional[str] = None) -> None:
+    async def _refresh(self, interaction: discord.Interaction, note: Optional[str] = None) -> None:
         self.select.options = self._current_options()
         self.select.placeholder = self._select_placeholder()
         self.prev_button.disabled = self.page <= 0
@@ -399,9 +393,9 @@ async def _refresh(self, interaction: discord.Interaction, note: Optional[str] =
         await interaction.response.edit_message(content=content, view=self)
 
     def _render_content(self, note: Optional[str] = None) -> str:
-        lines = [f"{self.title}", self.prompt]
+        lines = [f"**{self.title}**", self.prompt]
         if self.selected_id is not None:
-            lines.append(f"الاختيار الحالي ركّز: {self._selected_label(self.selected_id)}")
+            lines.append(f"**الاختيار الحالي ركّز:** {self._selected_label(self.selected_id)}")
         if note:
             lines.append(note)
         return "\n".join(lines)
@@ -413,7 +407,7 @@ async def _refresh(self, interaction: discord.Interaction, note: Optional[str] =
             await self._refresh(interaction, note="لا توجد أهداف في الصفحة الحالية.")
             return
         self.selected_id = int(value)
-        await self._refresh(interaction, note=f"تم تحديد: {self._selected_label(self.selected_id)}. اضغط تأكيد لتثبيت الفعل.")
+        await self._refresh(interaction, note=f"تم تحديد: **{self._selected_label(self.selected_id)}**. اضغط تأكيد لتثبيت الفعل.")
 
     async def _on_prev(self, interaction: discord.Interaction) -> None:
         if self.page > 0:
@@ -453,8 +447,8 @@ async def _refresh(self, interaction: discord.Interaction, note: Optional[str] =
         self.stop()
 
 class KingForceVoteView(BasePagedTargetView):
-    def init(self, *, author_id: int, candidates: List[Tuple[int, str]], title: str, prompt: str, timeout: int = 75, page_size: int = 20, allow_cancel: bool = True) -> None:
-        super().init(author_id=author_id, candidates=candidates, title=title, prompt=prompt, timeout=timeout, page_size=page_size, allow_cancel=allow_cancel, confirm_label="تثبيت الصوت العادي", cancel_label="إلغاء")
+    def __init__(self, *, author_id: int, candidates: List[Tuple[int, str]], title: str, prompt: str, timeout: int = 75, page_size: int = 20, allow_cancel: bool = True) -> None:
+        super().__init__(author_id=author_id, candidates=candidates, title=title, prompt=prompt, timeout=timeout, page_size=page_size, allow_cancel=allow_cancel, confirm_label="تثبيت الصوت العادي", cancel_label="إلغاء")
         self.force_button = discord.ui.Button(label="👑 حُكم الإعدام الملكي الفوري", style=discord.ButtonStyle.danger)
         self.force_button.callback = self._on_force
         self.add_item(self.force_button)
@@ -469,13 +463,12 @@ class KingForceVoteView(BasePagedTargetView):
         await interaction.response.edit_message(content=f"{self._render_content()}\n\n⚖️ تم استدعاء مرسوم الملك الصارم وصعق الهدف.", view=self)
         self.stop()
 
-
 # ==============================================================================
 # 5. محرك إدارة الأطوار الرئيسي والعمليات الحسابية والمنطقية (Werewolf Phase Cog)
 # ==============================================================================
 
 class WerewolfPhaseCog(commands.Cog):
-    def init(self, bot: commands.Bot):
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
 
     def _alive_ids(self, game: GameInstance) -> List[int]:
@@ -541,10 +534,9 @@ class WerewolfPhaseCog(commands.Cog):
                 view.message = msg
                 wolf_tasks.append(view)
             except discord.Forbidden:
-                await town_channel.send(f"⚠️ {member.display_name} (الذيب) الخاص عندك مغلق! افتحه لتشارك بالصيد!")
+                await town_channel.send(f"⚠️ **{member.display_name}** (الذيب) الخاص عندك مغلق! افتحه لتشارك بالصيد!")
 
-
-det_tasks = []
+        det_tasks = []
         for uid in detective_ids:
             if game.players[uid].get('has_used_power', False): continue
             member = guild.get_member(uid) or await guild.fetch_member(uid)
@@ -557,7 +549,7 @@ det_tasks = []
                 view.message = msg
                 det_tasks.append(view)
             except discord.Forbidden:
-                await town_channel.send(f"⚠️ المحقق {member.display_name} الخاص عندك مغلق!")
+                await town_channel.send(f"⚠️ المحقق **{member.display_name}** الخاص عندك مغلق!")
 
         guard_tasks = []
         for uid in guard_ids:
@@ -572,7 +564,7 @@ det_tasks = []
                 view.message = msg
                 guard_tasks.append(view)
             except discord.Forbidden:
-                await town_channel.send(f"⚠️ الحارس {member.display_name} الخاص عندك مغلق!")
+                await town_channel.send(f"⚠️ الحارس **{member.display_name}** الخاص عندك مغلق!")
 
         doc_tasks = []
         for uid in doctor_ids:
@@ -587,7 +579,7 @@ det_tasks = []
                 view.message = msg
                 doc_tasks.append(view)
             except discord.Forbidden:
-                await town_channel.send(f"⚠️ الطبيب {member.display_name} الخاص عندك مغلق!")
+                await town_channel.send(f"⚠️ الطبيب **{member.display_name}** الخاص عندك مغلق!")
 
         sed_tasks = []
         for uid in seducer_ids:
@@ -601,7 +593,7 @@ det_tasks = []
                 view.message = msg
                 sed_tasks.append(view)
             except discord.Forbidden:
-                await town_channel.send(f"⚠️ المغرية {member.display_name} الخاص عندك مغلق!")
+                await town_channel.send(f"⚠️ المغرية **{member.display_name}** الخاص عندك مغلق!")
 
         # انتظار انتهاء فترات اتخاذ القرار لكل لاعب
         await asyncio.sleep(timeout)
@@ -614,8 +606,7 @@ det_tasks = []
             top_targets = [uid for uid, count in counts.items() if count == top_score]
             targets.wolves_target = random.choice(top_targets)
 
-
-targets.detective_target = next((v.result for v in det_tasks if v.result is not None), None)
+        targets.detective_target = next((v.result for v in det_tasks if v.result is not None), None)
         targets.guard_target = next((v.result for v in guard_tasks if v.result is not None), None)
         targets.doctor_target = next((v.result for v in doc_tasks if v.result is not None), None)
         targets.seducer_target = next((v.result for v in sed_tasks if v.result is not None), None)
@@ -631,7 +622,7 @@ targets.detective_target = next((v.result for v in det_tasks if v.result is not 
             if det_member and inspected_player:
                 role_info = inspected_player.get('role', 'قروي')
                 try:
-                    await det_member.send(f"🔍 نتيجة بحثك السري: اللاعب {inspected_player['display_name']} دوره الحقيقي هو: {role_info}.")
+                    await det_member.send(f"🔍 **نتيجة بحثك السري:** اللاعب **{inspected_player['display_name']}** دوره الحقيقي هو: **{role_info}**.")
                 except discord.Forbidden:
                     pass
 
@@ -683,11 +674,9 @@ targets.detective_target = next((v.result for v in det_tasks if v.result is not 
                 if active_wolves:
                     exposed_wolf = random.choice(active_wolves)
                     w_record = game.players[exposed_wolf]
-
-
-embed_fadi = discord.Embed(
+                    embed_fadi = discord.Embed(
                         title="👵 صرخة أم فادي الفاضحة من القبر!",
-                        description=f"قبل أن تلفظ أنفاسها الأخيرة، التفتت للجميع وأشارت بإصبعها:\n\nالذيب هو {w_record['display_name']} يا قرويين خذوا ثأري!",
+                        description=f"قبل أن تلفظ أنفاسها الأخيرة، التفتت للجميع وأشارت بإصبعها:\n\n**الذيب هو {w_record['display_name']} يا قرويين خذوا ثأري!**",
                         color=0xf1c40f
                     )
                     await town_channel.send(embed=embed_fadi)
@@ -743,7 +732,7 @@ embed_fadi = discord.Embed(
                     target_player = game.players.get(actual_target)
                     embed_king = discord.Embed(
                         title="⚖️ مرسوم ملكي عاجل وقاطع!",
-                        description=f"استدعى الملك سلطته المطلقة! أمر بإعدام {target_player['display_name']} فوراً وبدون أي نقاش أو تصويت إضافي!",
+                        description=f"استدعى الملك سلطته المطلقة! أمر بإعدام **{target_player['display_name']}** فوراً وبدون أي نقاش أو تصويت إضافي!",
                         color=0x9b59b6
                     )
                     await town_channel.send(embed=embed_king)
@@ -770,8 +759,7 @@ embed_fadi = discord.Embed(
                 await db.update_player_status(game.guild_id, lynch_target, is_alive=False)
             return lynch_target
 
-
-# فرز وحساب الأصوات العادية مع احتساب الوزن المضاعف للعمدة
+        # فرز وحساب الأصوات العادية مع احتساب الوزن المضاعف للعمدة
         if not session.ballots:
             embed_no_votes = discord.Embed(title="🏛️ صمت النهار المحير", description="لم يقم أحد بالتصويت أو الاستجابة، انقضى النهار بسلام غامض.", color=0x7f8c8d)
             await town_channel.send(embed=embed_no_votes)
@@ -803,11 +791,11 @@ embed_fadi = discord.Embed(
         for uid, score in tally.most_common():
             p = game.players.get(uid)
             if not p: continue
-            vote_lines.append(f"• {p['display_name']} — حصل على {score} أصوات")
+            vote_lines.append(f"• **{p['display_name']}** — حصل على {score} أصوات")
 
         embed_res = discord.Embed(
             title="⚖️ حكم المشنقة النهائي للقرية",
-            description="انتهت مداولات النهار وحضر الجلاد.\n\n" + "\n".join(vote_lines) + f"\n\nالنتيجة: تم اقتياد اللاعب {target_player['display_name']} للمشنقة بعد نيله أعلى الأصوات وطُرِد من اللعبة.",
+            description="انتهت مداولات النهار وحضر الجلاد.\n\n" + "\n".join(vote_lines) + f"\n\n**النتيجة:** تم اقتياد اللاعب **{target_player['display_name']}** للمشنقة بعد نيله أعلى الأصوات وطُرِد من اللعبة.",
             color=0xd35400
         )
         await town_channel.send(embed=embed_res)
@@ -818,11 +806,11 @@ embed_fadi = discord.Embed(
 # ==============================================================================
 
 class WerewolfBot(commands.Bot):
-    def init(self):
+    def __init__(self):
         intents = discord.Intents.default()
         intents.message_content = True
         intents.members = True
-        super().init(command_prefix="!", intents=intents)
+        super().__init__(command_prefix="!", intents=intents)
 
     async def setup_hook(self):
         await db.initialize()
@@ -863,11 +851,10 @@ async def manage_game_loop(guild_id: int, interaction: discord.Interaction):
             break
 
         # 2. تشغيل طور النهار والتصويت الخاص
-        await town_channel.send(f"🏛️ بدأ نهار اليوم الـ {game.day_number}! تم فتح صناديق الاقتراع السرية بالخاص، لديكم دقيقة واحدة للنقاش والتصويت!")
+        await town_channel.send(f"🏛️ **بدأ نهار اليوم الـ {game.day_number}! تم فتح صناديق الاقتراع السرية بالخاص، لديكم دقيقة واحدة للنقاش والتصويت!**")
         await cog.run_day_voting(game, interaction.guild, town_channel, timeout_seconds=40)
 
-
-# فحص شروط انتهاء اللعبة فوراً بعد فرز أصوات المشنقة بالنهار
+        # فحص شروط انتهاء اللعبة فوراً بعد فرز أصوات المشنقة بالنهار
         over, winner = cog.is_game_over(game)
         if over:
             if winner == "wolves":
@@ -925,7 +912,7 @@ async def register_game(interaction: discord.Interaction):
             game.alive_players.append(inter.user.id)
 
         await db.save_game_state(guild_id, "signup", game.players, game.day_number)
-        await inter.response.send_message(f"✅ كفو! انضم البطل {inter.user.display_name} للقيم. (العدد الحالي للجنود: {len(game.players)})")
+        await inter.response.send_message(f"✅ كفو! انضم البطل **{inter.user.display_name}** للقيم. (العدد الحالي للجنود: {len(game.players)})")
 
     join_btn.callback = join_callback
     view.add_item(join_btn)
@@ -937,7 +924,7 @@ async def start_game(interaction: discord.Interaction):
     guild_id = interaction.guild_id
     
     if guild_id not in games:
-        await interaction.response.send_message("❌ اكتب أمر /تسجيل أولاً لتأسيس قيم جديد في هذا السيرفر!", ephemeral=True)
+        await interaction.response.send_message("❌ اكتب أمر `/تسجيل` أولاً لتأسيس قيم جديد في هذا السيرفر!", ephemeral=True)
         return
 
     game = games[guild_id]
@@ -952,8 +939,7 @@ async def start_game(interaction: discord.Interaction):
     player_ids = list(game.players.keys())
     random.shuffle(player_ids)
 
-
-# قائمة الأدوار الخاصة المدعومة
+    # قائمة الأدوار الخاصة المدعومة
     available_roles = list(ROLES_INFO.keys())
     if "القروي" in available_roles:
         available_roles.remove("القروي")
@@ -977,15 +963,15 @@ async def start_game(interaction: discord.Interaction):
             role_assigned = game.players[p_id]['role']
             role_description = ROLES_INFO[role_assigned]
             try:
-                await member.send(f"🤫 بطاقتك ودورك السري في هذا القيم هو:\n\n[{role_assigned}]\n{role_description}")
+                await member.send(f"🤫 **بطاقتك ودورك السري في هذا القيم هو:**\n\n**[{role_assigned}]**\n{role_description}")
             except discord.Forbidden:
-                await interaction.channel.send(f"⚠️ يا {member.display_name} افتح الخاص عندك لتتمكن من رؤية دورك السري، تم تخزين دورك بالقاعدة على أي حال!")
+                await interaction.channel.send(f"⚠️ يا **{member.display_name}** افتح الخاص عندك لتتمكن من رؤية دورك السري، تم تخزين دورك بالقاعدة على أي حال!")
 
     game.game_started = True
     game.game_phase = "night"
     await db.save_game_state(guild_id, "night", game.players, game.day_number)
 
-    await interaction.response.send_message("⚔️ تم قفل التسجيل وتوزيع البطاقات بالخاص بنجاح! جاري تشغيل المحرك التلقائي للأطوار...")
+    await interaction.response.send_message("⚔️ **تم قفل التسجيل وتوزيع البطاقات بالخاص بنجاح! جاري تشغيل المحرك التلقائي للأطوار...**")
     
     # تشغيل الحلقة اللانهائية الآلية لإدارة الأطوار والتعاقب
     asyncio.create_task(manage_game_loop(guild_id, interaction))
@@ -1022,7 +1008,7 @@ async def investigate(interaction: discord.Interaction, target: discord.User):
     game.players[voter_id]['has_used_power'] = True
     await db.update_player_status(guild_id, voter_id, has_used_power=True)
 
-    await interaction.response.send_message(f"🔍 بنتيجة بحثك الإداري السريع: اللاعب {target.display_name} دوره الفعلي هو: {target_role} 🤫 (لا تفضح نفسك وعلم السيرفر بالتصويت ملمحاً!)", ephemeral=True)
+    await interaction.response.send_message(f"🔍 بنتيجة بحثك الإداري السريع: اللاعب **{target.display_name}** دوره الفعلي هو: **{target_role}** 🤫 (لا تفضح نفسك وعلم السيرفر بالتصويت ملمحاً!)", ephemeral=True)
 
 # ==================== أمر فحص لوحة الحالة الحالية ====================
 @bot.tree.command(name="الحالة", description="استعراض أسماء الأحياء الباقين وعدد الضحايا في السيرفر")
@@ -1035,18 +1021,17 @@ async def game_status(interaction: discord.Interaction):
         if db_phase and db_phase != 'ended':
             games[guild_id] = GameInstance.from_state(guild_id, db_phase, db_day, db_players)
         else:
-            await interaction.response.send_message("ما فيه أي قيم شغال حالياً في هذا السيرفر. اكتب أمر /تسجيل واصنع متعتك!", ephemeral=True)
+            await interaction.response.send_message("ما فيه أي قيم شغال حالياً في هذا السيرفر. اكتب أمر `/تسجيل` واصنع متعتك!", ephemeral=True)
             return
 
-
-game = games[guild_id]
+    game = games[guild_id]
     alive_names = [game.players[uid]['display_name'] for uid in game.alive_players if uid in game.players and game.players[uid]['alive']]
     dead_count = len(game.players) - len(alive_names)
 
     embed = discord.Embed(title=f"📊 وضع لوحة التحكم للقيم الحالي (اليوم: {game.day_number})", color=0x3498db)
     embed.add_field(name="🟢 الأحياء الصامدين والواقفين حالياً:", value=", ".join(alive_names) if alive_names else "لا يوجد أحد (إبادة جماعية للقرية)", inline=False)
     embed.add_field(name="💀 عدد الضحايا الكلي الذين سقطوا:", value=str(dead_count), inline=False)
-    embed.add_field(name="⚙️ المرحلة والطور الحالي للعبة:", value=f"{game.game_phase.upper()}", inline=True)
+    embed.add_field(name="⚙️ المرحلة والطور الحالي للعبة:", value=f"`{game.game_phase.upper()}`", inline=True)
     embed.set_footer(text="البوت يراقب ويحفظ كل شيء بقاعدة البيانات للتوثيق.")
 
     await interaction.response.send_message(embed=embed)
@@ -1072,7 +1057,7 @@ async def main():
             await db.close()
             print("💾 تم إغلاق قاعدة البيانات بنجاح.")
 
-if name == "main":
+if __name__ == "__main__":
     try:
         asyncio.run(main())
     except KeyboardInterrupt:
